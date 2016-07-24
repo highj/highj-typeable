@@ -2,17 +2,18 @@ package org.highj.typeable;
 
 import org.derive4j.hkt.__;
 import org.highj.data.Either;
+import org.highj.data.Maybe;
 
 public interface UnionTypeable<A> extends __<UnionTypeable.µ,A> {
     enum µ {}
     
     <F> __<F,A> run(InvariantUnionTypeable<F> context);
     
-    static <A> UnionTypeable<A> singleton(String tag, Typeable<A> type) {
+    static <A> UnionTypeable<A> singleton(String tag, Maybe<Typeable<A>> typeOp) {
         return new UnionTypeable<A>() {
             @Override
             public <F> __<F, A> run(InvariantUnionTypeable<F> context) {
-                return context.singleton(tag, type);
+                return context.singleton(tag, typeOp);
             }
         };
     }

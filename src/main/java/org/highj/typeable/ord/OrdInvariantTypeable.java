@@ -2,12 +2,10 @@ package org.highj.typeable.ord;
 
 import java.util.function.Function;
 import org.derive4j.hkt.__;
-import org.highj.data.Either;
 import org.highj.data.List;
 import org.highj.data.ord.Ord;
 import org.highj.data.ord.Ordering;
 import org.highj.data.tuple.T0;
-import org.highj.data.tuple.T2;
 import org.highj.typeable.InvariantTypeable;
 import org.highj.typeable.RecordTypeable;
 import org.highj.typeable.UnionTypeable;
@@ -15,11 +13,6 @@ import org.highj.typeable.UnionTypeable;
 public interface OrdInvariantTypeable extends InvariantTypeable<Ord.µ> {
     
     static OrdInvariantTypeable instance = new OrdInvariantTypeable() {};
-
-    @Override
-    default __<Ord.µ, T0> unit() {
-        return (Ord<T0>)(a, b) -> Ordering.EQ;
-    }
 
     @Override
     default __<Ord.µ, Boolean> boolean_() {

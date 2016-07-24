@@ -1,10 +1,7 @@
 package org.highj.typeable;
 
 import org.derive4j.hkt.__;
-import org.highj.data.Either;
 import org.highj.data.List;
-import org.highj.data.tuple.T0;
-import org.highj.data.tuple.T2;
 import org.highj.function.F1;
 
 public interface Typeable<A> extends __<Typeable.µ,A> {
@@ -17,15 +14,6 @@ public interface Typeable<A> extends __<Typeable.µ,A> {
             @Override
             public <F> __<F, B> run(InvariantTypeable<F> context) {
                 return context.invmap(f, g, Typeable.this.run(context));
-            }
-        };
-    }
-
-    static Typeable<T0> unit() {
-        return new Typeable<T0>() {
-            @Override
-            public <F> __<F, T0> run(InvariantTypeable<F> context) {
-                return context.unit();
             }
         };
     }

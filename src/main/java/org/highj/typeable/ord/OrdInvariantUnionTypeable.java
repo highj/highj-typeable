@@ -3,6 +3,7 @@ package org.highj.typeable.ord;
 import java.util.function.Function;
 import org.derive4j.hkt.__;
 import org.highj.data.Either;
+import org.highj.data.Maybe;
 import org.highj.data.ord.Ord;
 import org.highj.data.ord.Ordering;
 import org.highj.typeable.InvariantUnionTypeable;
@@ -14,8 +15,10 @@ public interface OrdInvariantUnionTypeable extends InvariantUnionTypeable<Ord.µ
     static OrdInvariantUnionTypeable instance = new OrdInvariantUnionTypeable() {};
 
     @Override
-    public default <A> __<Ord.µ, A> singleton(String tag, Typeable<A> type) {
-        return type.run(OrdInvariantTypeable.instance);
+    public default <A> __<Ord.µ, A> singleton(String tag, Maybe<Typeable<A>> typeOp) {
+        return typeOp.map((Typeable<A> type) -> type.run(OrdInvariantTypeable.instance)).getOrElse(
+            () -> (Ord<A>)(a, b) -> Ordering.EQ
+        );
     }
 
     @Override
