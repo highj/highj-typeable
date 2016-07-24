@@ -75,20 +75,20 @@ public interface Typeable<A> extends __<Typeable.µ,A> {
         };
     }
 
-    static <A,B> Typeable<T2<A,B>> t2(Typeable<A> ta, Typeable<B> tb) {
-        return new Typeable<T2<A,B>>() {
+    static <A> Typeable<A> record(RecordTypeable<A> ta) {
+        return new Typeable<A>() {
             @Override
-            public <F> __<F, T2<A, B>> run(InvariantTypeable<F> context) {
-                return context.t2(ta.run(context), tb.run(context));
+            public <F> __<F, A> run(InvariantTypeable<F> context) {
+                return context.record(ta);
             }
         };
     }
 
-    static <A,B> Typeable<Either<A,B>> either(Typeable<A> ta, Typeable<B> tb) {
-        return new Typeable<Either<A,B>>() {
+    static <A> Typeable<A> union(UnionTypeable<A> ta) {
+        return new Typeable<A>() {
             @Override
-            public <F> __<F, Either<A, B>> run(InvariantTypeable<F> context) {
-                return context.either(ta.run(context), tb.run(context));
+            public <F> __<F, A> run(InvariantTypeable<F> context) {
+                return context.union(ta);
             }
         };
     }

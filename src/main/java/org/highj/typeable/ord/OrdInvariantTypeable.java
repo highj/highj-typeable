@@ -9,6 +9,8 @@ import org.highj.data.ord.Ordering;
 import org.highj.data.tuple.T0;
 import org.highj.data.tuple.T2;
 import org.highj.typeable.InvariantTypeable;
+import org.highj.typeable.RecordTypeable;
+import org.highj.typeable.UnionTypeable;
 
 public interface OrdInvariantTypeable extends InvariantTypeable<Ord.µ> {
     
@@ -45,36 +47,15 @@ public interface OrdInvariantTypeable extends InvariantTypeable<Ord.µ> {
     }
 
     @Override
-    default <A, B> __<Ord.µ, T2<A, B>> t2(__<Ord.µ, A> fa, __<Ord.µ, B> fb) {
-        return (Ord<T2<A,B>>)(a, b) -> {
-            Ordering x = Ord.narrow(fa).cmp(a._1(), b._1());
-            switch (x) {
-                case LT:
-                case GT:
-                    return x;
-                case EQ:
-                    return Ord.narrow(fb).cmp(a._2(), b._2());
-                default:
-                    throw new IllegalStateException();
-            }
-        };
+    public default <A> __<Ord.µ, A> record(RecordTypeable<A> ta) {
+        return ta.run(OrdInvariantRecordTypeable.instance);
     }
-
+    
     @Override
-    default <A, B> __<Ord.µ, Either<A, B>> either(__<Ord.µ, A> fa, __<Ord.µ, B> fb) {
-        return (Ord<Either<A,B>>)(a, b) ->
-            a.either(
-                x -> b.either(
-                    y -> Ord.narrow(fa).cmp(x, y),
-                    y -> Ordering.LT
-                ),
-                x -> b.either(
-                    y -> Ordering.GT,
-                    y -> Ord.narrow(fb).cmp(x, y)
-                )
-            );
+    public default <A> __<Ord.µ, A> union(UnionTypeable<A> ta) {
+        return ta.run(OrdInvariantUnionTypeable.instance);
     }
-
+    
     @Override
     default <A> __<Ord.µ, List<A>> list(__<Ord.µ, A> fa) {
         return (Ord<List<A>>)(a, b) -> {
