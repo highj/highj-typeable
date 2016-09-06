@@ -2,91 +2,72 @@ package org.highj.typeable;
 
 import org.derive4j.hkt.__;
 import org.highj.data.List;
-import org.highj.function.F1;
+import org.highj.data.Maybe;
 
-public interface Typeable<A> extends __<Typeable.µ,A> {
-    enum µ {}
+import java.util.function.Function;
 
-    <F> __<F,A> run(InvariantTypeable<F> context);
+public class Typeable<A> implements __<Typeable.Mu,A> {
+    private final PTypeable<A,A> _pTypeable;
 
-    default <B> Typeable<B> invmap(F1<A,B> f, F1<B,A> g) {
-        return new Typeable<B>() {
-            @Override
-            public <F> __<F, B> run(InvariantTypeable<F> context) {
-                return context.invmap(f, g, Typeable.this.run(context));
-            }
-        };
+    public enum Mu {}
+
+    private Typeable(PTypeable<A,A> pTypeable) {
+        this._pTypeable = pTypeable;
     }
 
-    static Typeable<Boolean> boolean_() {
-        return new Typeable<Boolean>() {
-            @Override
-            public <F> __<F, Boolean> run(InvariantTypeable<F> context) {
-                return context.boolean_();
-            }
-        };
+    public static <A> Typeable<A> fromPTypeable(PTypeable<A,A> pTypeable) {
+        return new Typeable<>(pTypeable);
     }
 
-    static Typeable<Integer> int_() {
-        return new Typeable<Integer>() {
-            @Override
-            public <F> __<F, Integer> run(InvariantTypeable<F> context) {
-                return context.int_();
-            }
-        };
+    public static <A> Typeable<A> narrow(__<Typeable.Mu,A> a) {
+        return (Typeable<A>)a;
     }
 
-    static Typeable<Long> long_() {
-        return new Typeable<Long>() {
-            @Override
-            public <F> __<F, Long> run(InvariantTypeable<F> context) {
-                return context.long_();
-            }
-        };
+    public PTypeable<A,A> toPTypeable() {
+        return _pTypeable;
     }
 
-    static Typeable<Double> double_() {
-        return new Typeable<Double>() {
-            @Override
-            public <F> __<F, Double> run(InvariantTypeable<F> context) {
-                return context.double_();
-            }
-        };
+    public <B> Typeable<B> invmap(Function<A,B> f, Function<B,A> g) {
+        return fromPTypeable(toPTypeable().dimap(g, f));
     }
 
-    static Typeable<String> string_() {
-        return new Typeable<String>() {
-            @Override
-            public <F> __<F, String> run(InvariantTypeable<F> context) {
-                return context.string();
-            }
-        };
+    public static Typeable<Boolean> boolean_() {
+        return fromPTypeable(PTypeable.boolean_());
     }
 
-    static <A> Typeable<A> record(RecordTypeable<A> ta) {
-        return new Typeable<A>() {
-            @Override
-            public <F> __<F, A> run(InvariantTypeable<F> context) {
-                return context.record(ta);
-            }
-        };
+    public static Typeable<Integer> int_() {
+        return fromPTypeable(PTypeable.int_());
     }
 
-    static <A> Typeable<A> union(UnionTypeable<A> ta) {
-        return new Typeable<A>() {
-            @Override
-            public <F> __<F, A> run(InvariantTypeable<F> context) {
-                return context.union(ta);
-            }
-        };
+    public static Typeable<Long> long_() {
+        return fromPTypeable(PTypeable.long_());
+    }
+
+    public static Typeable<Double> double_() {
+        return fromPTypeable(PTypeable.double_());
+    }
+
+    public static Typeable<String> string() {
+        return fromPTypeable(PTypeable.string());
+    }
+
+    public static <A> Typeable<A> record(RecordTypeable<A> recordTypeable) {
+        return fromPTypeable(PTypeable.record(recordTypeable.toPRecordTypeable()));
+    }
+
+    public static <A> Typeable<A> union(UnionTypeable<A> unionTypeable) {
+        return Typeable.fromPTypeable(PTypeable.union(unionTypeable.toPUnionTypeable()));
     }
 
     public static <A> Typeable<List<A>> list(Typeable<A> typeable) {
-        return new Typeable<List<A>>() {
-            @Override
-            public <F> __<F, List<A>> run(InvariantTypeable<F> context) {
-                return context.list(typeable.run(context));
-            }
-        };
+        return fromPTypeable(PTypeable.list(typeable.toPTypeable()));
+    }
+
+    public static <A extends Enum<A>> Typeable<A> enum_(java.lang.Class<A> klass) {
+        return fromPTypeable(PTypeable.enum_(klass));
+    }
+
+    public static <A> Typeable<Maybe<A>> maybe(Typeable<A> typeable) {
+        return fromPTypeable(PTypeable.maybe(typeable.toPTypeable()));
     }
 }

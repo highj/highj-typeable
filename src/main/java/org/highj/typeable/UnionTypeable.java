@@ -2,38 +2,44 @@ package org.highj.typeable;
 
 import org.derive4j.hkt.__;
 import org.highj.data.Either;
-import org.highj.data.Maybe;
-import org.highj.function.F1;
+import org.highj.data.tuple.T0;
 
-public interface UnionTypeable<A> extends __<UnionTypeable.µ,A> {
-    enum µ {}
-    
-    <F> __<F,A> run(InvariantUnionTypeable<F> context);
-    
-    default <B> UnionTypeable<B> invmap(F1<A,B> f, F1<B,A> g) {
-        return new UnionTypeable<B>() {
-            @Override
-            public <F> __<F, B> run(InvariantUnionTypeable<F> context) {
-                return context.invmap(f, g, UnionTypeable.this.run(context));
-            }
-        };
+import java.util.function.Function;
+
+public class UnionTypeable<A> implements __<UnionTypeable.Mu,A> {
+    private final PUnionTypeable<A,A> _pUnionTypeable;
+
+    public enum Mu {}
+
+    private UnionTypeable(PUnionTypeable<A,A> pUnionTypeable) {
+        this._pUnionTypeable = pUnionTypeable;
     }
 
-    static <A> UnionTypeable<A> singleton(String tag, Maybe<Typeable<A>> typeOp) {
-        return new UnionTypeable<A>() {
-            @Override
-            public <F> __<F, A> run(InvariantUnionTypeable<F> context) {
-                return context.singleton(tag, typeOp);
-            }
-        };
+    public static <A> UnionTypeable<A> fromPUnionTypeable(PUnionTypeable<A,A> pUnionTypeable) {
+        return new UnionTypeable<>(pUnionTypeable);
     }
-    
-    static <A,B> UnionTypeable<Either<A,B>> append(UnionTypeable<A> ta, UnionTypeable<B> tb) {
-        return new UnionTypeable<Either<A,B>>() {
-            @Override
-            public <F> __<F, Either<A, B>> run(InvariantUnionTypeable<F> context) {
-                return context.append(ta, tb);
-            }
-        };
+
+    public static <A> UnionTypeable<A> narrow(__<UnionTypeable.Mu,A> a) {
+        return (UnionTypeable<A>)a;
+    }
+
+    public PUnionTypeable<A,A> toPUnionTypeable() {
+        return _pUnionTypeable;
+    }
+
+    public <B> UnionTypeable<B> invmap(Function<A,B> f, Function<B,A> g) {
+        return fromPUnionTypeable(toPUnionTypeable().dimap(g, f));
+    }
+
+    public static UnionTypeable<T0> typelessSingleton(String tag) {
+        return  fromPUnionTypeable(PUnionTypeable.typelessSingleton(tag));
+    }
+
+    public static <A> UnionTypeable<A> singleton(String tag, Typeable<A> type) {
+        return UnionTypeable.fromPUnionTypeable(PUnionTypeable.singleton(tag, type.toPTypeable()));
+    }
+
+    public static <A,B> UnionTypeable<Either<A,B>> append(UnionTypeable<A> ta, UnionTypeable<B> tb) {
+        return UnionTypeable.fromPUnionTypeable(PUnionTypeable.append(ta.toPUnionTypeable(), tb.toPUnionTypeable()));
     }
 }
